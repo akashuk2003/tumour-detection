@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Brain Tumour System</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 50px; background: #f4f4f9; }
+        .container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); display: inline-block; width: 400px; }
+        h1 { color: #2c3e50; }
+        button { background: #3498db; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 10px;}
+        .nav { margin-bottom: 20px; }
+        .nav a { margin: 0 10px; text-decoration: none; color: #555; font-weight: bold; }
+        .nav a.active { color: #3498db; border-bottom: 2px solid #3498db; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav">
+            <a href="{% url 'upload' %}" class="{% if not mode %}active{% endif %}">Single Analysis</a> |
+            <a href="{% url 'compare' %}" class="{% if mode == 'compare' %}active{% endif %}">Compare Growth</a>
+        </div>
+
+        {% if mode == 'compare' %}
+            <h1>📉 Compare Growth</h1>
+            <p>Upload two scans to check tumour progression.</p>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <label>Older Scan:</label><br>
+                <input type="file" name="scan1" required><br><br>
+                <label>Newer Scan:</label><br>
+                <input type="file" name="scan2" required><br><br>
+                <button type="submit">Compare Scans</button>
+            </form>
+        {% else %}
+            <h1>🧠 Detect Tumour</h1>
+            <p>Upload a single MRI scan.</p>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" name="scan" required><br><br>
+                <button type="submit">Analyze Scan</button>
+            </form>
+        {% endif %}
+    </div>
+</body>
+</html>

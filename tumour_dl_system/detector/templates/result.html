@@ -1,34 +1,129 @@
-{% extends 'base.html' %} 
+{% extends 'base.html' %}
 
 {% block content %}
-<div class="container" style="text-align: center; max-width: 800px; margin: 0 auto;">
+<style>
+    /* Modern UI Styles */
+    .report-card {
+        background: white;
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 40px;
+        border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 12px 24px;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+        letter-spacing: 0.5px;
+    }
+
+    .status-danger {
+        background-color: #fff5f5;
+        color: #e53e3e;
+        border: 1px solid #feb2b2;
+    }
+
+    .status-safe {
+        background-color: #f0fff4;
+        color: #38a169;
+        border: 1px solid #9ae6b4;
+    }
+
+    .scan-container {
+        margin: 30px 0;
+        position: relative;
+    }
+
+    .scan-img {
+        width: 100%;
+        max-height: 400px;
+        object-fit: contain;
+        border-radius: 12px;
+        border: 1px solid #eee;
+    }
+
+    /* Confidence Bar Styles */
+    .confidence-wrapper {
+        margin-top: 15px;
+        text-align: left;
+    }
     
-    <h2>Analysis Report</h2>
+    .confidence-label {
+        font-size: 0.9rem;
+        color: #718096;
+        margin-bottom: 5px;
+        display: flex;
+        justify-content: space-between;
+    }
 
-    <div style="margin-bottom: 30px; padding: 20px; border-radius: 10px; background-color: #f8f9fa;">
-        {% if analysis.tumour_detected %}
-            <h1 style="color: #e74c3c; font-size: 2.5em; margin: 0;">⚠️ Tumour Detected</h1>
-            <p style="font-size: 1.2em; color: #555; margin-top: 10px;">
-                Confidence Score: <strong>{{ analysis.confidence_score|floatformat:2 }}</strong>
-            </p>
-        {% else %}
-            <h1 style="color: #27ae60; font-size: 2.5em; margin: 0;">✅ No Tumour Detected</h1>
-            <p style="font-size: 1.2em; color: #555; margin-top: 10px;">
-                Confidence Score: <strong>{{ analysis.confidence_score|floatformat:2 }}</strong>
-            </p>
-        {% endif %}
+    .progress-track {
+        background-color: #edf2f7;
+        height: 10px;
+        border-radius: 5px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #4299e1, #667eea);
+        border-radius: 5px;
+        transition: width 1s ease-in-out;
+    }
+
+    .btn-back {
+        display: inline-block;
+        margin-top: 30px;
+        padding: 12px 30px;
+        background-color: #3182ce;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: transform 0.2s, background-color 0.2s;
+    }
+
+    .btn-back:hover {
+        background-color: #2b6cb0;
+        transform: translateY(-2px);
+    }
+</style>
+
+<div class="report-card">
+    <h2 style="color: #2d3748; margin-bottom: 30px;">📄 Analysis Report</h2>
+
+    {% if analysis.tumour_detected %}
+        <div class="status-badge status-danger">
+            ⚠️ Tumour Detected
+        </div>
+    {% else %}
+        <div class="status-badge status-safe">
+            ✅ No Tumour Detected
+        </div>
+    {% endif %}
+
+    <div class="scan-container">
+        <img src="{{ analysis.image.url }}" alt="MRI Scan" class="scan-img">
     </div>
 
-    <div class="result-image" style="margin-top: 20px;">
-        <h3>Scanned Image</h3>
-        <img src="{{ analysis.image.url }}" alt="Original MRI Scan" 
-             style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border: 1px solid #ddd;">
+    <div class="confidence-wrapper">
+        <div class="confidence-label">
+            <span>AI Model Confidence</span>
+            <span>{{ analysis.confidence_score|floatformat:2 }}</span>
+        </div>
+        <div class="progress-track">
+            <div class="progress-fill" style="width: {% widthratio analysis.confidence_score 1 100 %}%;"></div>
+        </div>
     </div>
 
-    <br><br>
-    <a href="{% url 'upload' %}" style="text-decoration: none; color: #3498db; font-weight: bold; font-size: 1.1em;">
+    <a href="{% url 'upload' %}" class="btn-back">
         ⬅ Analyze Another Image
     </a>
-
 </div>
+
 {% endblock %}

@@ -1,0 +1,52 @@
+﻿python : 2026-01-12 11:03:39.391504: I 
+tensorflow/core/util/port.cc:153] oneDNN custom 
+operations are on. You may see slightly different 
+numerical results due to floating-point round-off 
+errors from different computation orders. To turn them 
+off, set the environment variable 
+`TF_ENABLE_ONEDNN_OPTS=0`.
+At line:1 char:1
++ python detector/dl/train_model.py 2>&1 | Out-File 
+-FilePath train_log ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (2026-01-12 
+    11:0...ONEDNN_OPTS=0`.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+2026-01-12 11:03:40.234860: I 
+tensorflow/core/util/port.cc:153] oneDNN custom 
+operations are on. You may see slightly different 
+numerical results due to floating-point round-off 
+errors from different computation orders. To turn them 
+off, set the environment variable 
+`TF_ENABLE_ONEDNN_OPTS=0`.
+[INFO] Loading data from: C:\Assigns\tumour-detection\tumour_dl_system\brain_tumor_dataset
+Found 203 images belonging to 2 classes.
+Found 50 images belonging to 2 classes.
+2026-01-12 11:03:44.099330: I 
+tensorflow/core/platform/cpu_feature_guard.cc:210] This 
+TensorFlow binary is optimized to use available CPU 
+instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F 
+AVX512_VNNI FMA, in other operations, rebuild 
+TensorFlow with the appropriate compiler flags.
+
+[INFO] Class indices: {'no': 0, 'yes': 1}
+[INFO] Training samples: 203
+[INFO] Validation samples: 50
+[INFO] Class weights: {0: 1.2848101265822784, 1: 0.8185483870967742}
+[INFO] Trainable layers: 30/154
+Traceback (most recent call last):
+  File "C:\Assigns\tumour-detection\tumour_dl_system\det
+ector\dl\train_model.py", line 137, in <module>
+    train()
+  File "C:\Assigns\tumour-detection\tumour_dl_system\det
+ector\dl\train_model.py", line 109, in train
+    ModelCheckpoint(
+  File "C:\Users\akash\AppData\Roaming\Python\Python312\
+site-packages\keras\src\callbacks\model_checkpoint.py", 
+line 191, in __init__
+    raise ValueError(
+ValueError: The filepath provided must end in `.keras` 
+(Keras model format). Received: filepath=C:\Assigns\tumo
+ur-detection\tumour_dl_system\detector\dl\cnn_model.h5

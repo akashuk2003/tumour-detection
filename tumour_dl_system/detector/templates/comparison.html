@@ -10,6 +10,9 @@
         .col { width: 45%; }
         img { width: 100%; border: 1px solid #ccc; }
         .stats { background: #ecf0f1; padding: 15px; margin-top: 20px; border-radius: 5px; }
+        .scan-status { padding: 8px; border-radius: 5px; margin-top: 8px; font-weight: bold; }
+        .tumour-yes { background: #fadbd8; color: #c0392b; }
+        .tumour-no { background: #d5f5e3; color: #27ae60; }
     </style>
 </head>
 <body>
@@ -18,12 +21,14 @@
         
         <div class="stats">
             <h2>Growth Analysis</h2>
-            {% if growth > 0 %}
-                <h3 style="color: red;">⚠️ Tumour grew by {{ growth }}%</h3>
+            {% if no_tumour %}
+                <h3 style="color: green;">No tumour detected in either scan. Both scans appear healthy.</h3>
+            {% elif growth > 0 %}
+                <h3 style="color: red;">Tumour grew by {{ growth }}%</h3>
             {% elif growth < 0 %}
-                <h3 style="color: green;">✅ Tumour shrank by {{ growth }}%</h3>
+                <h3 style="color: green;">Tumour shrank by {{ growth }}%</h3>
             {% else %}
-                <h3 style="color: blue;">➖ No size change detected</h3>
+                <h3 style="color: blue;">No size change detected</h3>
             {% endif %}
         </div>
 
@@ -31,19 +36,27 @@
             <div class="col">
                 <h3>Scan 1 (Older)</h3>
                 <img src="/media/{{ image1_name }}" alt="Scan 1">
+                <div class="scan-status {% if is_tumour1 %}tumour-yes{% else %}tumour-no{% endif %}">
+                    {% if is_tumour1 %}Tumour Detected ({{ conf1 }}%){% else %}No Tumour ({{ conf1 }}%){% endif %}
+                </div>
                 <p>Area: {{ area1 }} pixels</p>
             </div>
             <div class="col">
                 <h3>Scan 2 (Newer)</h3>
                 <img src="/media/{{ image2_name }}" alt="Scan 2">
+                <div class="scan-status {% if is_tumour2 %}tumour-yes{% else %}tumour-no{% endif %}">
+                    {% if is_tumour2 %}Tumour Detected ({{ conf2 }}%){% else %}No Tumour ({{ conf2 }}%){% endif %}
+                </div>
                 <p>Area: {{ area2 }} pixels</p>
             </div>
         </div>
 
+        {% if not no_tumour %}
         <div style="margin-top: 30px;">
             <h3>Growth Chart</h3>
             <img src="data:image/png;base64,{{ chart }}" style="width: 500px; border: none;">
         </div>
+        {% endif %}
 
         <br>
         <a href="{% url 'compare' %}">Compare Another</a>

@@ -41,16 +41,31 @@ def comparison_view(request):
         f1 = request.FILES['scan1']
         n1 = fs.save(f1.name, f1)
         path1 = fs.path(n1)
-        _, area1 = process_and_segment(path1)
         
         # Process Image 2
         f2 = request.FILES['scan2']
         n2 = fs.save(f2.name, f2)
         path2 = fs.path(n2)
+        
+        # 1. DL Classification - check if tumours are actually present
+        is_tumour1, conf1 = classify_image(path1)
+        is_tumour2, conf2 = classify_image(path2)
+        
+        # 2. CV Segmentation - get tumour areas
+        _, area1 = process_and_segment(path1)
         _, area2 = process_and_segment(path2)
         
-        # Calculate Growth
-        if area1 > 0:
+        # 3. If no tumour in a scan, treat its area as 0
+        if not is_tumour1:
+            area1 = 0
+        if not is_tumour2:
+            area2 = 0
+        
+        # 4. Calculate Growth only if at least one scan has a tumour
+        no_tumour = not is_tumour1 and not is_tumour2
+        if no_tumour:
+            growth = 0
+        elif area1 > 0:
             growth = ((area2 - area1) / area1) * 100
         else:
             growth = 0
@@ -63,7 +78,12 @@ def comparison_view(request):
             'growth': round(growth, 2),
             'chart': chart,
             'image1_name': f1.name,
-            'image2_name': f2.name
+            'image2_name': f2.name,
+            'is_tumour1': is_tumour1,
+            'is_tumour2': is_tumour2,
+            'conf1': round(conf1 * 100, 1),
+            'conf2': round(conf2 * 100, 1),
+            'no_tumour': no_tumour,
         })
 
     return render(request, 'upload.html', {'mode': 'compare'})

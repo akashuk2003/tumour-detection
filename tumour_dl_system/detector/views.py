@@ -61,14 +61,23 @@ def comparison_view(request):
         if not is_tumour2:
             area2 = 0
         
-        # 4. Calculate Growth only if at least one scan has a tumour
+        # 4. Determine growth status
         no_tumour = not is_tumour1 and not is_tumour2
         if no_tumour:
             growth = 0
+            growth_status = 'no_tumour'
+        elif is_tumour1 and not is_tumour2:
+            growth = -100
+            growth_status = 'disappeared'
+        elif not is_tumour1 and is_tumour2:
+            growth = 100
+            growth_status = 'new_tumour'
         elif area1 > 0:
             growth = ((area2 - area1) / area1) * 100
+            growth_status = 'grew' if growth > 0 else ('shrank' if growth < 0 else 'no_change')
         else:
             growth = 0
+            growth_status = 'no_change'
             
         chart = generate_comparison_chart(area1, area2)
         
@@ -84,6 +93,7 @@ def comparison_view(request):
             'conf1': round(conf1 * 100, 1),
             'conf2': round(conf2 * 100, 1),
             'no_tumour': no_tumour,
+            'growth_status': growth_status,
         })
 
     return render(request, 'upload.html', {'mode': 'compare'})

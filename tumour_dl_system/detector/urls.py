@@ -8,7 +8,8 @@ from detector import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('upload/', views.upload_view, name='upload'),
-    path('compare/', views.comparison_view, name='compare'), 
+    path('compare/', views.comparison_view, name='compare'),
+    path('metrics/', views.training_metrics_view, name='metrics'),
     path('', views.upload_view),
 ]
 

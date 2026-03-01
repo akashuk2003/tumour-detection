@@ -1,3 +1,5 @@
+import os
+import base64
 from django.shortcuts import render, redirect
 from django.core.files.storage import FileSystemStorage
 from .models import ScanAnalysis
@@ -97,3 +99,21 @@ def comparison_view(request):
         })
 
     return render(request, 'upload.html', {'mode': 'compare'})
+
+def training_metrics_view(request):
+    """Display training accuracy and time-per-epoch graphs."""
+    plots_dir = os.path.join(os.path.dirname(__file__), 'dl', 'training_plots')
+    
+    graphs = {}
+    graph_files = {
+        'accuracy': 'accuracy.png',
+        'time': 'time_per_epoch.png',
+    }
+    
+    for key, filename in graph_files.items():
+        filepath = os.path.join(plots_dir, filename)
+        if os.path.exists(filepath):
+            with open(filepath, 'rb') as f:
+                graphs[key] = base64.b64encode(f.read()).decode('utf-8')
+    
+    return render(request, 'training_metrics.html', {'graphs': graphs})

@@ -1,4 +1,5 @@
 import os
+import time
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras.models import Model # type: ignore
@@ -7,6 +8,20 @@ from tensorflow.keras.applications import MobileNetV2 # type: ignore
 from tensorflow.keras.preprocessing.image import ImageDataGenerator # type: ignore
 from tensorflow.keras.optimizers import Adam # type: ignore
 from sklearn.utils.class_weight import compute_class_weight
+try:
+    from .plot_metrics import generate_training_graphs
+except ImportError:
+    from plot_metrics import generate_training_graphs
+
+
+class TimeHistory(tf.keras.callbacks.Callback):
+    """Callback to record time taken per epoch."""
+    def on_train_begin(self, logs=None):
+        self.times = []
+    def on_epoch_begin(self, epoch, logs=None):
+        self.epoch_start = time.time()
+    def on_epoch_end(self, epoch, logs=None):
+        self.times.append(time.time() - self.epoch_start)
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -102,14 +117,17 @@ def train():
     )
 
     # 5. Train top layers first
+    time_callback = TimeHistory()
+    
     print("\n[PHASE 1] Training classification head only...")
     print("=" * 60)
     
-    model.fit(
+    history1 = model.fit(
         train_generator,
         epochs=15,
         validation_data=validation_generator,
-        class_weight=class_weight_dict
+        class_weight=class_weight_dict,
+        callbacks=[time_callback]
     )
 
     # 6. Now fine-tune the last 30 layers
@@ -120,23 +138,35 @@ def train():
         layer.trainable = True
     
     # Recompile with lower learning rate for fine-tuning
+    time_callback2 = TimeHistory()
     model.compile(
         loss='binary_crossentropy', 
         optimizer=Adam(learning_rate=0.00001),  # Very low LR for fine-tuning
         metrics=['accuracy']
     )
     
-    history = model.fit(
+    history2 = model.fit(
         train_generator,
         epochs=15,
         validation_data=validation_generator,
-        class_weight=class_weight_dict
+        class_weight=class_weight_dict,
+        callbacks=[time_callback2]
     )
+
+    # Merge histories from both phases
+    history = history2
+    combined_history = {}
+    for key in history1.history:
+        combined_history[key] = history1.history[key] + history2.history[key]
+    all_epoch_times = time_callback.times + time_callback2.times
 
     # 7. Save model
     model.save(MODEL_SAVE_PATH, save_format='h5')
     
-    # 8. Print final metrics
+    # 8. Generate training graphs
+    generate_training_graphs(combined_history, all_epoch_times)
+
+    # 9. Print final metrics
     print("\n" + "=" * 60)
     print("[DONE] Training Complete!")
     print(f"   Final Validation Accuracy: {history.history['val_accuracy'][-1]:.4f}")

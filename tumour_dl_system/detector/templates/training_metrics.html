@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .metrics-page {
+        max-width: 900px;
+        margin: 20px auto;
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    .metrics-page h2 {
+        color: #2d3748;
+        margin-bottom: 30px;
+        font-size: 1.6rem;
+    }
+
+    .graph-card {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        transition: transform 0.2s;
+    }
+
+    .graph-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+
+    .graph-card h3 {
+        color: #4a5568;
+        margin-bottom: 15px;
+        font-size: 1.2rem;
+        border-bottom: 2px solid #e2e8f0;
+        padding-bottom: 10px;
+    }
+
+    .graph-card img {
+        width: 100%;
+        border-radius: 8px;
+        border: none;
+    }
+
+    .no-data {
+        background: #fef3cd;
+        color: #856404;
+        padding: 30px;
+        border-radius: 12px;
+        text-align: center;
+        font-size: 1.1rem;
+    }
+
+    .no-data code {
+        background: #fff3cd;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-size: 0.95rem;
+    }
+</style>
+
+<div class="metrics-page">
+    <h2>📊 Training Metrics</h2>
+
+    {% if graphs.accuracy or graphs.time %}
+
+        {% if graphs.accuracy %}
+        <div class="graph-card">
+            <h3>📈 Accuracy Graph</h3>
+            <img src="data:image/png;base64,{{ graphs.accuracy }}" alt="Accuracy Graph">
+        </div>
+        {% endif %}
+
+        {% if graphs.time %}
+        <div class="graph-card">
+            <h3>⏱️ Time Per Epoch</h3>
+            <img src="data:image/png;base64,{{ graphs.time }}" alt="Time Per Epoch Graph">
+        </div>
+        {% endif %}
+
+    {% else %}
+        <div class="no-data">
+            <p><strong>No training graphs available yet.</strong></p>
+            <p>Train the model first by running:</p>
+            <p><code>python detector/dl/train_model.py</code></p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
